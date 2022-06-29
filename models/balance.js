@@ -30,13 +30,6 @@ module.exports = (sequelize, DataTypes) => {
         notNull: {
           args: true,
           msg: `phone number can't be empty`
-        },
-        isNumeric: {
-          args: true,
-          msg: 'only number input to balance'
-        },
-        isInt: {
-          args: true
         }
       }
     }

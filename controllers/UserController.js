@@ -1,4 +1,4 @@
-const { User, Balance } = require('../models');
+const { User, Balance, sequelize } = require('../models');
 const { comparePassword, generateToken } = require('../helper');
 const XenditInvoice = require('../API/xendit')
 
@@ -6,24 +6,23 @@ class UserController {
     static async register(req, res, next) {
         const { username, email, password, phoneNumber } = req.body;
         try {
+            const t = await sequelize.transaction()
             const newUser = await User.create({
                 username,
                 email,
                 password,
                 phoneNumber
-            })
+            }, { transaction : t })
             await Balance.create({
                 UserId: newUser.id,
                 balance: 0
-            })
+            }, { transaction : t })
             res.status(201).json({
                 status: 201,
                 message: "your account has been created",
-                data : {
-                    username: newUser.username,
-                    email: newUser.email,
-                    phoneNumber: newUser.phoneNumber
-                }
+                username: newUser.username,
+                email: newUser.email,
+                phoneNumber: newUser.phoneNumber
             })
         } catch (error) {
             next(error)
@@ -77,7 +76,10 @@ class UserController {
                     code: 200,
                     status: "success",
                     message: "",
-                    data: response
+                    id: response.id,
+                    username: response.username,
+                    email: response.email,
+                    phoneNumber: response.phoneNumber
                 })
             }
         } catch (error) {
@@ -109,6 +111,7 @@ class UserController {
 
     static async topUp (req, res, next) {
         try {
+            const t = await sequelize.transaction()
             const { balance } = req.body
             const { id } = req.user
             const findUser = await User.findByPk(id)
@@ -116,16 +119,23 @@ class UserController {
                 where: {
                     UserId : findUser.id
                 }
-            })
-            const xenditInvoice = await XenditInvoice(User.username + toISOString(new Date()), balance, findUser)
+            }, { transaction : t })
+            const xenditInvoice = await XenditInvoice.createInvoice(findUser.id+'', balance, User)
             await Balance.update({
-                balance : findWallet.balance + balance,
+                balance : +findWallet.balance + +balance
+            }, {
                 where: {
                     UserId: findUser.id
                 }
+            }, { transaction: t })
+            res.status(200).json({
+                code: 200,
+                status: 'success',
+                message: '',
+                data : xenditInvoice.invoice_url
             })
-            res.status(200).json(xenditInvoice.invoice_url)
         } catch (error) {
+            console.log(error)
             next(error)
         }
     }

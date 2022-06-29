@@ -20,7 +20,7 @@ class BillerController {
     static async getBillerDetail(req, res, next) {
         try {
             const { billerid } = req.params
-            const response = await Biller.findByPk(id, {
+            const response = await Biller.findByPk(billerid, {
                 attributes: ['id', 'category', 'product', 'fee', 'price']
             })
             res.status(200).json({
@@ -44,11 +44,12 @@ class BillerController {
             })
             res.status(201).json({
                 code: 201,
-                status: success,
+                status: "success",
                 message: "",
                 data: newTransaction
             })
         } catch (error) {
+            console.log(error)
             next(error)
         }
     }
@@ -56,46 +57,48 @@ class BillerController {
     static async createPayment(req, res, next) {
         const t = await sequelize.transaction()
         try {
-            const { billerid } = req.params
+            const { paymentid } = req.params
             const { id } = req.user
             const findWallet = await Balance.findOne({
                 where: {
                     UserId: id
                 }
-            })
-            const findTransaction = await Transaction.findAll({
+            }, { transaction : t })
+            const findTransaction = await Transaction.findOne({
                 include: [{
                     model: Biller,
                     attributes: ['id', 'category', 'product', 'price', 'fee', 'totalPay']
                 }],
                 where: {
+                    id: paymentid,
                     UserId: id,
-                    BillerId: billerid,
                     isPaid: false
                 }
             }, { transaction : t})
             if(!findTransaction) {
                 throw ({name: "NOT_FOUND"})
             }
-            if(findWallet.balance < findTransaction.totalPrice) {
+            if(+findWallet.balance < +findTransaction.Biller.totalPay) {
                 throw ({name: "FORBIDDEN"})
             } else {
                 await Balance.update({
-                    balance: findWallet.balance - totalPrice,
+                    balance: +findWallet.balance - +findTransaction.Biller.totalPay,
                 }, {
                     where: {
-                        UserId: id
-                    }
-                }, {transaction : t })
+                        id: paymentid
+                    },
+                    transaction : t
+                })
                 await Transaction.update({
                     isPaid: true
                 }, {
                     where: {
+                        id : paymentid,
                         UserId: id,
-                        BillerId: billerid,
                         isPaid: false
-                    }
-                }, { transaction: t })
+                    },
+                    transaction: t
+                })
                 res.status(200).json({
                     code: 200,
                     status: 'success',
@@ -104,6 +107,7 @@ class BillerController {
             }
             t.commit()
         } catch (error) {
+            console.log(error)
             t.rollback()
             next(error)
         }
@@ -113,6 +117,7 @@ class BillerController {
         try {
             const { id } = req.user
             const findHistory = await Transaction.findAll({
+                attributes: ["isPaid"],
                 include: [{
                     model: Biller,
                     attributes: ['category', 'product', 'price', 'fee', 'totalPay']
@@ -128,6 +133,7 @@ class BillerController {
                 data: findHistory
             })
         } catch (error) {
+            console.log(error)
             next(error)
         }
     }
