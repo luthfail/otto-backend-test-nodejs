@@ -7,7 +7,7 @@ const auth = async(req, res, next) => {
         const ticket = verifyToken(access_token)
         const response = await User.findByPk(ticket.id)
         if(!response || !access_token) {
-            throw ({name: 'invalid token'})
+            throw ({name: 'JsonWebTokenError'})
         } else {
             req.user ={
                 id: response.id,
