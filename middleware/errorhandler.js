@@ -4,48 +4,48 @@ const errorHandler = (err, req, res, next) => {
         case 'SequelizeValidationError':
             res.status(400).json({
                 code: 400,
-                status: "error",
+                status: "BAD REQUEST",
                 message: err.errors[0].message
             });
             break;
         case "INVALID":
             res.status(401).json({
                 code: 401,
-                status: "error",
+                status: "UNAUTHORIZED",
                 message: `ERROR Invalid email or password`
             });
         case "JsonWebTokenError":
             res.status(401).json({
                 code: 401,
-                status: "error",
+                status: "UNAUTHORIZED",
                 message: 'Invalid token'
             });
             break;
         case "FORBIDDEN":
             res.status(403).json({
                 code: 403,
-                status: "error",
+                status: "FORBIDDEN",
                 message: 'Forbidden'
             });
             break;
         case 'NOT_FOUND':
             res.status(404).json({
                 code: 404,
-                status: "error",
+                status: "NOT FOUND",
                 message: 'Post not found'
             });
             break;
         case 'InternalServerError':
             res.status(404).json({
                 code: 500,
-                status: "error",
+                status: "INTERNAL SERVER ERROR",
                 message: 'Internal Server Error'
             });
             break;
         default :
             res.status(500).json({
                 code: 500,
-                status: "error",
+                status: "INTERNAL SERVER ERROR",
                 message: 'Internal Server Error'
             });
             break;

@@ -135,7 +135,6 @@ class UserController {
                 data : xenditInvoice.invoice_url
             })
         } catch (error) {
-            console.log(error)
             next(error)
         }
     }
