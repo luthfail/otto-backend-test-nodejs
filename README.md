@@ -17,7 +17,7 @@
 ## step jika ingin melakukan run di local :
 
 jalankan npm i di terminal
-ubah config/config json development :
+ubah config/config.json development :
 
 - username : username database
 - password : password database
