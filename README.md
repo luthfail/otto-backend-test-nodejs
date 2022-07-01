@@ -29,3 +29,5 @@ lalu jalankan command di terminal
 - `npx sequelize-cli db:seed:all`
 
 buatlah .env sesuai env-example yang tertera
+run app dengan command
+`npx nodemon app.js` atau `node app.js`
