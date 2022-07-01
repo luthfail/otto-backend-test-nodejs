@@ -19,9 +19,9 @@
 jalankan npm i di terminal
 ubah config/config json development :
 
-username : username database
-password : password database
-host : localhost db
+- username : username database
+- password : password database
+- host : localhost db
 
 lalu jalankan command di terminal
 - `npx sequelize-cli db:create`
