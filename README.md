@@ -24,8 +24,8 @@ password : password database
 host : localhost db
 
 lalu jalankan command di terminal
-`npx sequelize-cli db:create`
-`npx sequelize-cli db:migrate`
-`npx sequelize-cli db:seed:all`
+- `npx sequelize-cli db:create`
+- `npx sequelize-cli db:migrate`
+- `npx sequelize-cli db:seed:all`
 
 buatlah .env sesuai env-example yang tertera
